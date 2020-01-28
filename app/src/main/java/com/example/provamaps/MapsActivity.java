@@ -4,10 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.FragmentActivity;
 
 
 import android.Manifest;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -19,6 +22,7 @@ import android.location.Location;
 import com.google.android.gms.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -45,6 +49,8 @@ public class MapsActivity extends FragmentActivity
         LocationListener
     {
 
+
+    private String chanel1 = "chanel1";
     private GoogleMap mMap;
     private Button btn_more;
     private Button btn_start;
@@ -63,6 +69,9 @@ public class MapsActivity extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
@@ -75,6 +84,12 @@ public class MapsActivity extends FragmentActivity
             @Override
             public void onClick(View v) {
                 ////////////////////////////////////////// STEP COUNTER///////////////////////////////////////////7
+
+                Toast toast= Toast.makeText(getApplicationContext(),"STARTED", Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 50);
+                toast.show();
+
+
 
                 SensorManager sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
                 Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -95,6 +110,10 @@ public class MapsActivity extends FragmentActivity
                                 stepCount++;
                             }
                             tv_steps.setText(stepCount.toString());
+
+                            if (stepCount == 20){
+                                notificationShow();
+                            }
                         }
 
                     }
@@ -112,7 +131,6 @@ public class MapsActivity extends FragmentActivity
 
         });
 
-
         tv_steps = (TextView) findViewById(R.id.StepView);
 
 
@@ -121,20 +139,36 @@ public class MapsActivity extends FragmentActivity
         btn_stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (steps != 0){
 
-                    Toast.makeText(getBaseContext(),"Vols guardar-ho",Toast.LENGTH_SHORT).show();
-                   /* new AlertDialog.Builder(this,1)
-                            .setIcon(android.R.drawable.ic_delete)
-                            .setTitle("Are you sure?")
-                            .setMessage("Do you want to remove this item?")
-                            .setPositiveButton("Yes",new  DialogInterface.OnClickListener(){
+                Toast toast= Toast.makeText(getApplicationContext(),"STOPED", Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 50);
+                toast.show();
 
 
-                            })
-                            .setNegativeButton("No",null)
-                            .show();*/
-                }
+                AlertDialog.Builder aBuilder = new AlertDialog.Builder(v.getContext());
+                aBuilder.setMessage("Do you want to save the data ?");
+                aBuilder.setTitle("Save");
+                aBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // CODI SI VOL GUARDAR.
+                        stepCount = 0;
+
+                        Intent intent = new Intent(MapsActivity.this,Pantalla_more.class);
+                        startActivity(intent);
+                    }
+                });
+                aBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        stepCount = 0;
+                    }
+                });
+                aBuilder.setIcon(android.R.drawable.ic_delete);
+                aBuilder.show();
+
+
+
             }
         });
 
@@ -247,4 +281,18 @@ public class MapsActivity extends FragmentActivity
         public void onConnectionSuspended(int i) {
 
         }
+
+        public void notificationShow(){
+
+            NotificationCompat.Builder builder = (NotificationCompat.Builder) new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.icona5)
+                    .setContentTitle("SUCCES")
+                    .setContentText("AHHAHAHAHA")
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(1, builder.build());
+        }
+
     }
+
